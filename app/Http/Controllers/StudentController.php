@@ -25,7 +25,7 @@ class StudentController extends Controller
         }
 
         return view('students.index', [
-            'students' => $students->get()
+            'students' => $students->simplePaginate(5)
         ]);
     }
 

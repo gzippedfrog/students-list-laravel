@@ -1,5 +1,5 @@
 <x-layout>
-    <x-alert />
+    <x-alert/>
 
     <x-search class="mb-3"/>
 
@@ -65,5 +65,9 @@
             @endforeach
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-3">
+        {{ $students->links() }}
     </div>
 </x-layout>

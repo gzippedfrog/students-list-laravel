@@ -14,12 +14,18 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
+        $students = Student::query();
 
-        // dd($students);
+        if (request('search')) {
+            $students
+                ->where('first_name', 'LIKE', '%' . request('search') . '%')
+                ->orWhere('last_name', 'LIKE', '%' . request('search') . '%')
+                ->orWhere('group_number', 'LIKE', '%' . request('search') . '%')
+                ->orWhere('points', 'LIKE', '%' . request('search') . '%');
+        }
 
-        return view('index', [
-            'students' => $students
+        return view('students.index', [
+            'students' => $students->get()
         ]);
     }
 
@@ -36,7 +42,7 @@ class StudentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -47,7 +53,7 @@ class StudentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Student  $student
+     * @param \App\Models\Student $student
      * @return \Illuminate\Http\Response
      */
     public function show(Student $student)
@@ -58,30 +64,41 @@ class StudentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Student  $student
+     * @param \App\Models\Student $student
      * @return \Illuminate\Http\Response
      */
     public function edit(Student $student)
     {
-        //
+        return view('students.edit', [
+            'student' => $student,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Student  $student
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Student $student
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Student $student)
     {
-        //
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'group_number' => 'required|string|max:255',
+            'points' => 'required|integer|min:1|max:300',
+        ]);
+
+        $student->update($validated);
+
+        return redirect(route('students.index'))->with('message', "Data successfully updated");
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Student  $student
+     * @param \App\Models\Student $student
      * @return \Illuminate\Http\Response
      */
     public function destroy(Student $student)

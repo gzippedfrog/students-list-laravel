@@ -10,22 +10,28 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
         $students = Student::query();
 
-        if (request('search')) {
+        if ($request->has('search')) {
             $students
-                ->where('first_name', 'LIKE', '%' . request('search') . '%')
-                ->orWhere('last_name', 'LIKE', '%' . request('search') . '%')
-                ->orWhere('group_number', 'LIKE', '%' . request('search') . '%')
-                ->orWhere('points', 'LIKE', '%' . request('search') . '%');
+                ->where('first_name', 'LIKE', "%{request('search')}%")
+                ->orWhere('last_name', 'LIKE', '%' . $request->get('search') . '%')
+                ->orWhere('group_number', 'LIKE', '%' . $request->get('search') . '%')
+                ->orWhere('points', 'LIKE', '%' . $request->get('search') . '%');
+        }
+
+        if ($request->has('orderBy')) {
+            $students->orderBy($request->get('orderBy'));
         }
 
         return view('students.index', [
-            'students' => $students->simplePaginate(5)
+            'students' => $students
+                ->simplePaginate(5)
+                ->appends($request->all()),
         ]);
     }
 
